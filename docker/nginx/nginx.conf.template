@@ -22,6 +22,36 @@ http {
 
     access_log  /var/log/nginx/access.log  main;
 
+    # --- Audit logging (custom) ---
+    # Only flag state-changing actions as auditable; skip read-only GET/HEAD/OPTIONS noise.
+    map $request_method $audit_loggable {
+        default 0;
+        POST    1;
+        PUT     1;
+        PATCH   1;
+        DELETE  1;
+    }
+
+    # Extract the console session JWT from the Cookie header. Works over both
+    # HTTP (cookie "access_token") and HTTPS (cookie "__Host-access_token"),
+    # so "who" resolves correctly in production. Empty for API/bearer callers.
+    map $http_cookie $audit_token {
+        default "";
+        "~(?:^|;\s*)(?:__Host-)?access_token=([^;]+)" $1;
+    }
+
+    # One JSON line per admin action: when / what / result / where / actor-token.
+    log_format audit escape=json '{'
+        '"time":"$time_iso8601",'
+        '"method":"$request_method",'
+        '"path":"$request_uri",'
+        '"status":$status,'
+        '"ip":"$remote_addr",'
+        '"referer":"$http_referer",'
+        '"auth":"$http_authorization",'
+        '"token":"$audit_token"'
+    '}';
+
     sendfile        on;
     #tcp_nopush     on;
 

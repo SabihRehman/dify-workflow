@@ -140,9 +140,6 @@ dmypy.json
 pyrightconfig.json
 !api/pyrightconfig.json
 
-# import-linter
-.import_linter_cache/
-
 # Pyre type checker
 .pyre/
 .idea/'
@@ -263,9 +260,23 @@ scripts/stress-test/reports/
 .qoder/*
 .context/
 # Vitest local reports
-web/.vitest-browser/
 web/.vitest-reports/
 
 # dify-agent-runtime
 dify-agent-runtime/bin/
 dify-agent-runtime/.integration-state
+docs/Dr. Soju – Business Growth Coach/Dr. Soju - Giving feedback.txt
+docs/Dr. Soju – Business Growth Coach/Dr. Soju – Answering your questions.txt
+docs/Dr. Soju – Business Growth Coach/Dr. Soju – Clarifying your question.txt
+docs/Dr. Soju – Business Growth Coach/Dr. Soju – Guiding you step-by-step.txt
+docs/Dr. Soju – Business Growth Coach/Dr. Soju – Helping with your worksheet.txt
+docs/Dr. Soju – Business Growth Coach/Dr. Soju – Helping you navigate.txt
+docs/Dr. Soju – Business Growth Coach/Dr. Soju – Keeping us on track.txt
+docs/Dr. Soju – Business Growth Coach/Dr. Soju – Reflecting with you.txt
+docs/Dr. Soju – Business Growth Coach/Dr. Soju – Showing examples.txt
+docs/Dr. Soju – Business Growth Coach/Screenshot 2026-07-07 at 16.15.40.png
+docs/Dr. Soju – Business Growth Coach/dr-soju-workflow.yml
+docs/Dr. Soju – Business Growth Coach/Dr. Soju – Business Growth Coach.py
+# Audit system: track code, never runtime data
+docker/audit/*.db
+docker/audit/__pycache__/

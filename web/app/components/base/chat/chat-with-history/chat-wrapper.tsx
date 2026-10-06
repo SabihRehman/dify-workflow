@@ -60,6 +60,26 @@ const ChatWrapper = () => {
     renderAgentContent,
   } = useChatWithHistoryContext()
 
+  // Admin-forced light/dark mode (Settings > Chat Appearance). "auto" leaves
+  // the visitor's device preference in charge, same as before this setting
+  // existed. Sets the data-theme attribute directly on this tab's own
+  // document instead of next-themes' setTheme() - setTheme() writes to
+  // localStorage, which next-themes syncs across every open tab on the same
+  // origin, which would also force the admin's own Studio dashboard into
+  // this theme. Scoping it to this document avoids that entirely.
+  useEffect(() => {
+    const chatThemeMode = appData?.site.chat_theme_mode
+    if (!chatThemeMode || chatThemeMode === 'auto') return
+
+    const root = document.documentElement
+    const previousTheme = root.getAttribute('data-theme')
+    root.setAttribute('data-theme', chatThemeMode)
+    return () => {
+      if (previousTheme) root.setAttribute('data-theme', previousTheme)
+      else root.removeAttribute('data-theme')
+    }
+  }, [appData?.site.chat_theme_mode])
+
   const appSourceType = isInstalledApp ? AppSourceType.installedApp : AppSourceType.webApp
   const timezone =
     appSourceType === AppSourceType.webApp
@@ -477,6 +497,7 @@ const ChatWrapper = () => {
           ) : appData?.site.default_user_icon_type ? (
             <AppIcon
               size="large"
+              rounded
               iconType={appData.site.default_user_icon_type}
               icon={appData.site.default_user_icon ?? undefined}
               background={appData.site.default_user_icon_background}

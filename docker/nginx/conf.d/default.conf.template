@@ -5,6 +5,9 @@ server {
     server_name ${NGINX_SERVER_NAME};
     resolver 127.0.0.11 valid=30s ipv6=off;
 
+    # placeholder for the HTTP -> HTTPS redirect defined in docker-entrypoint.sh
+    ${HTTPS_REDIRECT}
+
     location /console/api {
       access_log /var/log/audit/audit.log audit if=$audit_loggable;
       set $api_upstream api:5001;

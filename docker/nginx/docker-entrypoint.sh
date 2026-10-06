@@ -31,6 +31,17 @@ else
 fi
 export ACME_CHALLENGE_LOCATION
 
+# With HTTPS on, send plain-HTTP requests to HTTPS. 308 (not 301) keeps the
+# method and body, so API POSTs aren't turned into GETs. Requests by IP go to
+# CERTBOT_DOMAIN, which the certificate covers. ACME challenges stay on HTTP.
+if [ "${NGINX_HTTPS_ENABLED}" = "true" ]; then
+    HTTPS_REDIRECT_HOST="${CERTBOT_DOMAIN:-\$host}"
+    HTTPS_REDIRECT="set \$https_redirect ''; if (\$scheme = http) { set \$https_redirect 1; } if (\$request_uri ~ ^/\\.well-known/acme-challenge/) { set \$https_redirect ''; } if (\$https_redirect) { return 308 https://${HTTPS_REDIRECT_HOST}\$request_uri; }"
+else
+    HTTPS_REDIRECT=''
+fi
+export HTTPS_REDIRECT
+
 env_vars=$(printenv | cut -d= -f1 | sed 's/^/$/g' | paste -sd, -)
 
 envsubst "$env_vars" < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf

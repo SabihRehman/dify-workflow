@@ -187,6 +187,23 @@ export function EmbedGuide({ agents }: { agents: DiffyAgent[] }) {
           hostname of the agent), then embed it with the iframe example. The script example is a
           complete page with the Option 1 snippet already in it.
         </p>
+        <ol className="flex list-decimal flex-col gap-1 pl-5 system-xs-regular text-text-tertiary">
+          <li>
+            Copy the iframe below and paste it into the customer page where the chat should
+            appear.
+          </li>
+          <li>
+            This iframe loads <Inline>{`${backend}/chat.html`}</Inline> directly, and the chat is
+            chosen from that address. In the <strong>Add agent</strong> form, save{' '}
+            <Inline>{`${backend}/chat.html`}</Inline> as the website address, together with the
+            Diffy iframe URL of the chat to show.
+          </li>
+          <li>
+            Change <Inline>height</Inline> in the snippet to fit your page. Keep{' '}
+            <Inline>allow=&quot;microphone&quot;</Inline> if voice input should work.
+          </li>
+        </ol>
+        <CodeBlock code={iframeTag(`${backend}/chat.html`)} label="full-page chat iframe snippet" />
         <div className="flex flex-wrap gap-2">
           <Button
             size="small"

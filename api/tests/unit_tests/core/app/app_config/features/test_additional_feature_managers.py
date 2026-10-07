@@ -15,8 +15,9 @@ class TestAdditionalFeatureManagers:
     def test_opening_statement_validate_defaults(self):
         config, keys = OpeningStatementConfigManager.validate_and_set_defaults({})
         assert config["opening_statement"] == ""
+        assert config["opening_template"] == ""
         assert config["suggested_questions"] == []
-        assert set(keys) == {"opening_statement", "suggested_questions"}
+        assert set(keys) == {"opening_statement", "opening_template", "suggested_questions"}
 
     def test_opening_statement_validate_types(self):
         with pytest.raises(ValueError):
@@ -29,6 +30,20 @@ class TestAdditionalFeatureManagers:
             OpeningStatementConfigManager.validate_and_set_defaults(
                 {"opening_statement": "hi", "suggested_questions": [1]}
             )
+
+    def test_opening_template_validate(self):
+        config, _ = OpeningStatementConfigManager.validate_and_set_defaults({"opening_template": "<b>hi</b>"})
+        assert config["opening_template"] == "<b>hi</b>"
+
+        with pytest.raises(ValueError):
+            OpeningStatementConfigManager.validate_and_set_defaults({"opening_template": 123})
+        with pytest.raises(ValueError):
+            OpeningStatementConfigManager.validate_and_set_defaults({"opening_template": "x" * 50_001})
+
+    def test_opening_template_convert(self):
+        assert OpeningStatementConfigManager.convert_template({"opening_template": "<b>hi</b>"}) == "<b>hi</b>"
+        assert OpeningStatementConfigManager.convert_template({"opening_template": ""}) is None
+        assert OpeningStatementConfigManager.convert_template({}) is None
 
     def test_opening_statement_convert(self):
         opening, questions = OpeningStatementConfigManager.convert(

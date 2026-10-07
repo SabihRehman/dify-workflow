@@ -19,6 +19,7 @@ class SystemParametersDict(TypedDict):
 
 class AppParametersDict(TypedDict):
     opening_statement: str | None
+    opening_template: str | None
     suggested_questions: list[str]
     suggested_questions_after_answer: FeatureToggleDict
     speech_to_text: FeatureToggleDict
@@ -40,6 +41,7 @@ def get_parameters_from_feature_dict(
     """
     return {
         "opening_statement": features_dict.get("opening_statement"),
+        "opening_template": features_dict.get("opening_template"),
         "suggested_questions": features_dict.get("suggested_questions", []),
         "suggested_questions_after_answer": features_dict.get("suggested_questions_after_answer", {"enabled": False}),
         "speech_to_text": features_dict.get("speech_to_text", {"enabled": False}),

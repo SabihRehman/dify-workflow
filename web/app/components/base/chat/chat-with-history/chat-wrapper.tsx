@@ -10,6 +10,7 @@ import { trackWebAppEvent } from '@/app/components/base/amplitude/web-app-event'
 import AnswerIcon from '@/app/components/base/answer-icon'
 import AppIcon from '@/app/components/base/app-icon'
 import InputsForm from '@/app/components/base/chat/chat-with-history/inputs-form'
+import OpeningTemplate from '@/app/components/base/chat/chat/answer/opening-template'
 import SuggestedQuestions from '@/app/components/base/chat/chat/answer/suggested-questions'
 import { Markdown } from '@/app/components/base/markdown'
 import { InputVarType } from '@/app/components/workflow/types'
@@ -80,6 +81,7 @@ const ChatWrapper = () => {
       },
       supportFeedback: true,
       opening_statement: currentConversationItem?.introduction || (config as any).opening_statement,
+      opening_template: (config as any).opening_template,
     } as ChatConfig
   }, [appParams, currentConversationItem?.introduction])
   const {
@@ -381,6 +383,7 @@ const ChatWrapper = () => {
               <div className="grow rounded-2xl bg-chat-bubble-bg px-4 py-3 body-lg-regular text-text-primary">
                 <Markdown content={welcomeMessage.content} />
                 <SuggestedQuestions item={welcomeMessage} />
+              <OpeningTemplate html={welcomeMessage.openingTemplate} className="mt-3" />
               </div>
             </div>
           </div>
@@ -401,6 +404,7 @@ const ChatWrapper = () => {
             className="body-2xl-regular! text-text-tertiary!"
             content={welcomeMessage.content}
           />
+          <OpeningTemplate html={welcomeMessage.openingTemplate} className="mt-4" />
         </div>
       </div>
     )

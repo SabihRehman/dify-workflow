@@ -39,6 +39,7 @@ class ModelConfigRequest(BaseModel):
         description="Model configuration parameters",
     )
     opening_statement: str | None = Field(default=None, description="Opening statement")
+    opening_template: str | None = Field(default=None, description="Custom HTML/CSS template shown below the opening statement")
     suggested_questions: list[str] | None = Field(default=None, description="Suggested questions")
     more_like_this: dict[str, Any] | None = Field(
         default=None,

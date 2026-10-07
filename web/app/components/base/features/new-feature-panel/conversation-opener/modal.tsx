@@ -12,6 +12,7 @@ import { useTranslation } from 'react-i18next'
 import { ReactSortable } from 'react-sortablejs'
 import ConfirmAddVar from '@/app/components/app/configuration/config-prompt/confirm-add-var'
 import { getInputKeys } from '@/app/components/base/block-input'
+import OpeningTemplate from '@/app/components/base/chat/chat/answer/opening-template'
 import Divider from '@/app/components/base/divider'
 import { Infotip } from '@/app/components/base/infotip'
 import PromptEditor from '@/app/components/base/prompt-editor'
@@ -42,6 +43,7 @@ const OpeningSettingModal = ({
     // oxlint-disable-next-line eslint-react/set-state-in-effect
     setTempValue(data.opening_statement || '')
   }, [data.opening_statement])
+  const [tempTemplate, setTempTemplate] = useState(data?.opening_template || '')
   const [tempSuggestedQuestions, setTempSuggestedQuestions] = useState(
     data.suggested_questions || [],
   )
@@ -82,6 +84,7 @@ const OpeningSettingModal = ({
       const newOpening = produce(data, (draft) => {
         if (draft) {
           draft.opening_statement = tempValue
+          draft.opening_template = tempTemplate
           draft.suggested_questions = tempSuggestedQuestions
         }
       })
@@ -94,6 +97,7 @@ const OpeningSettingModal = ({
       workflowVariables,
       showConfirmAddVar,
       tempSuggestedQuestions,
+      tempTemplate,
       tempValue,
       isSaveDisabled,
     ],
@@ -278,6 +282,42 @@ const OpeningSettingModal = ({
                 }}
               />
             </div>
+          </div>
+          <div data-testid="opener-template-section" className="py-2">
+            <div className="mb-1 flex items-center gap-1">
+              <div className="text-sm font-medium text-text-primary">
+                {t(($) => $['openingStatement.templateTitle'], { ns: 'appDebug' })}
+              </div>
+              <Infotip
+                aria-label={t(($) => $['openingStatement.templateDescription'], {
+                  ns: 'appDebug',
+                })}
+                className="size-3.5"
+                popupClassName="max-w-[240px] system-sm-regular text-text-secondary"
+              >
+                {t(($) => $['openingStatement.templateDescription'], { ns: 'appDebug' })}
+              </Infotip>
+            </div>
+            <textarea
+              data-testid="opener-template-input"
+              aria-label={t(($) => $['openingStatement.templateTitle'], { ns: 'appDebug' })}
+              value={tempTemplate}
+              onChange={(e) => setTempTemplate(e.target.value)}
+              placeholder={t(($) => $['openingStatement.templatePlaceholder'], { ns: 'appDebug' })}
+              spellCheck={false}
+              rows={8}
+              className="w-full resize-y rounded-lg border-0 bg-components-input-bg-normal px-3 py-2 font-mono system-xs-regular text-text-secondary placeholder:text-text-quaternary focus:bg-components-input-bg-active focus:outline-hidden"
+            />
+            {!!tempTemplate.trim() && (
+              <div data-testid="opener-template-preview" className="mt-3">
+                <div className="mb-1 system-xs-medium text-text-tertiary">
+                  {t(($) => $['openingStatement.templatePreview'], { ns: 'appDebug' })}
+                </div>
+                <div className="rounded-lg border border-components-panel-border-subtle bg-chat-bubble-bg p-3">
+                  <OpeningTemplate html={tempTemplate} />
+                </div>
+              </div>
+            )}
           </div>
           <div data-testid="opener-questions-section" className="py-2">
             {renderQuestions()}

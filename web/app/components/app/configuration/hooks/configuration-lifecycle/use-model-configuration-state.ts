@@ -24,6 +24,7 @@ function createInitialModelConfig(): ModelConfig {
     completion_prompt_config: clone(DEFAULT_COMPLETION_PROMPT_CONFIG),
     more_like_this: null,
     opening_statement: '',
+    opening_template: '',
     suggested_questions: [],
     sensitive_word_avoidance: null,
     speech_to_text: null,

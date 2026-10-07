@@ -42,6 +42,7 @@ const FeaturesWrappedAppPublisher = (props: Props) => {
   const {
     more_like_this,
     opening_statement,
+    opening_template,
     suggested_questions,
     sensitive_word_avoidance,
     speech_to_text,
@@ -60,6 +61,7 @@ const FeaturesWrappedAppPublisher = (props: Props) => {
       draft.opening = {
         enabled: !!opening_statement,
         opening_statement: opening_statement || '',
+        opening_template: opening_template || '',
         suggested_questions: suggested_questions || [],
       }
       draft.moderation = sensitive_word_avoidance || { enabled: false }

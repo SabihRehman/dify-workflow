@@ -36,6 +36,7 @@ class AgentAppFeatureConfigService:
     # cannot smuggle Soul-owned configuration in through the feature endpoint.
     ALLOWED_KEYS = (
         "opening_statement",
+        "opening_template",
         "suggested_questions",
         "suggested_questions_after_answer",
         "speech_to_text",

@@ -257,6 +257,7 @@ export type Model = {
 
 export type ModelConfig = {
   opening_statement: string
+  opening_template?: string
   suggested_questions?: string[]
   pre_prompt: string
   prompt_type: PromptMode

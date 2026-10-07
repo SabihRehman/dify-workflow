@@ -239,6 +239,7 @@ class ModelConfig(TypedDict):
 
 class AppModelConfigDict(TypedDict):
     opening_statement: str | None
+    opening_template: str | None
     suggested_questions: list[str]
     suggested_questions_after_answer: SuggestedQuestionsAfterAnswerConfig
     speech_to_text: EnabledConfig
@@ -775,6 +776,7 @@ class AppModelConfig(TypeBase):
         init=False,
     )
     opening_statement: Mapped[str | None] = mapped_column(LongText, default=None)
+    opening_template: Mapped[str | None] = mapped_column(LongText, default=None)
     suggested_questions: Mapped[str | None] = mapped_column(LongText, default=None)
     suggested_questions_after_answer: Mapped[str | None] = mapped_column(LongText, default=None)
     speech_to_text: Mapped[str | None] = mapped_column(LongText, default=None)
@@ -914,6 +916,7 @@ class AppModelConfig(TypeBase):
     def to_dict(self, *, annotation_reply: AnnotationReplyConfig | None = None) -> AppModelConfigDict:
         return {
             "opening_statement": self.opening_statement,
+            "opening_template": self.opening_template,
             "suggested_questions": self.suggested_questions_list,
             "suggested_questions_after_answer": self.suggested_questions_after_answer_dict,
             "speech_to_text": self.speech_to_text_dict,
@@ -941,6 +944,7 @@ class AppModelConfig(TypeBase):
 
     def from_model_config_dict(self, model_config: AppModelConfigDict):
         self.opening_statement = model_config.get("opening_statement")
+        self.opening_template = model_config.get("opening_template")
         self.suggested_questions = self._dump_optional(model_config.get("suggested_questions"))
         self.suggested_questions_after_answer = self._dump_optional(
             model_config.get("suggested_questions_after_answer")

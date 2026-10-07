@@ -48,6 +48,9 @@ const Features = () => {
         opening_statement: currentFeatures.opening?.enabled
           ? currentFeatures.opening?.opening_statement || ''
           : '',
+        opening_template: currentFeatures.opening?.enabled
+          ? currentFeatures.opening?.opening_template || ''
+          : '',
         suggested_questions: currentFeatures.opening?.enabled
           ? currentFeatures.opening?.suggested_questions || []
           : [],

@@ -254,6 +254,7 @@ class ModelConfigPartial(ResponseModel):
 
 class AppModelConfigResponse(ResponseModel):
     opening_statement: str | None = None
+    opening_template: str | None = None
     suggested_questions: Any | None = Field(
         default=None, validation_alias=AliasChoices("suggested_questions_list", "suggested_questions")
     )

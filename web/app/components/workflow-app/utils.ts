@@ -25,6 +25,7 @@ type FileUploadFeatureLike = {
 type WorkflowFeaturesLike = {
   file_upload?: FileUploadFeatureLike
   opening_statement?: string
+  opening_template?: string
   suggested_questions?: string[]
   suggested_questions_after_answer?: { enabled?: boolean }
   speech_to_text?: { enabled?: boolean }
@@ -101,6 +102,7 @@ export const buildInitialFeatures = (
     opening: {
       enabled: !!features.opening_statement,
       opening_statement: features.opening_statement,
+      opening_template: features.opening_template,
       suggested_questions: features.suggested_questions,
     },
     suggested: features.suggested_questions_after_answer || { enabled: false },

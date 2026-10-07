@@ -57,6 +57,7 @@ const ChatWrapper = ({
   const config = useMemo(() => {
     return {
       opening_statement: features.opening?.enabled ? features.opening?.opening_statement || '' : '',
+      opening_template: features.opening?.enabled ? features.opening?.opening_template || '' : '',
       suggested_questions: features.opening?.enabled
         ? features.opening?.suggested_questions || []
         : [],

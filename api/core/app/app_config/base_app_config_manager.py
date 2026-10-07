@@ -36,6 +36,8 @@ class BaseAppConfigManager:
             OpeningStatementConfigManager.convert(config=config_dict)
         )
 
+        additional_features.opening_template = OpeningStatementConfigManager.convert_template(config=config_dict)
+
         additional_features.suggested_questions_after_answer = SuggestedQuestionsAfterAnswerConfigManager.convert(
             config=config_dict
         )

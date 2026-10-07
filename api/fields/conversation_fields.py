@@ -311,6 +311,7 @@ class StatusCount(ResponseModel):
 
 class ModelConfig(ResponseModel):
     opening_statement: str | None = None
+    opening_template: str | None = None
     suggested_questions: JSONValue | None = Field(default=None)
     model: JSONValue | None = Field(default=None)
     user_input_form: JSONValue | None = Field(default=None)

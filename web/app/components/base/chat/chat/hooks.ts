@@ -267,11 +267,12 @@ export const useChat = (
       content: processedOpeningContent,
       isAnswer: true,
       isOpeningStatement: true,
+      openingTemplate: config?.opening_template || undefined,
       suggestedQuestions: processedSuggestionsKey
         ? (JSON.parse(processedSuggestionsKey) as string[])
         : undefined,
     }
-  }, [processedOpeningContent, processedSuggestionsKey])
+  }, [processedOpeningContent, processedSuggestionsKey, config?.opening_template])
 
   const threadOpener = useMemo(
     () => threadMessages.find((item) => item.isOpeningStatement) ?? null,
@@ -283,6 +284,7 @@ export const useChat = (
     return {
       ...threadOpener,
       content: openingStatementItem.content,
+      openingTemplate: openingStatementItem.openingTemplate,
       suggestedQuestions: openingStatementItem.suggestedQuestions,
     }
   }, [threadOpener, openingStatementItem])

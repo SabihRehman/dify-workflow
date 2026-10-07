@@ -51,6 +51,9 @@ class AgentAppFeaturesPayload(BaseModel):
     """
 
     opening_statement: str | None = Field(default=None, description="Conversation opener shown before the first turn")
+    opening_template: str | None = Field(
+        default=None, description="Custom HTML/CSS template shown below the opener"
+    )
     suggested_questions: list[str] | None = Field(
         default=None, description="Preset questions shown alongside the opener"
     )

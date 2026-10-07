@@ -59,6 +59,7 @@ export const buildConfigurationFeaturesData = (
     opening: {
       enabled: !!modelConfig.opening_statement,
       opening_statement: modelConfig.opening_statement || '',
+      opening_template: modelConfig.opening_template || '',
       suggested_questions: modelConfig.suggested_questions || [],
     },
     moderation: modelConfig.sensitive_word_avoidance || { enabled: false },

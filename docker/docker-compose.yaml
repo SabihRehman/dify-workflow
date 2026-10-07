@@ -1356,7 +1356,7 @@ services:
       DIFY_INTERNAL_API_URL: ${DIFFY_BACKEND_DIFY_INTERNAL_API_URL-http://api:5001}
     volumes:
       # Persists config/agents.json and config/diffy-agents.json across restarts/rebuilds.
-      - ./volumes/diffy_backend/config:/app/config
+      - ./volumes/diffy_backend/config:/app/src/config
 
 networks:
   # create a network between sandbox, api and ssrf_proxy, and can not access outside.

@@ -94,6 +94,8 @@ export const useChat = (
     ? JSON.stringify(config.suggested_questions.map((q: string) => getIntroduction(q)))
     : undefined
 
+  const showTemplate = !!config?.opening_template_enabled && !!config?.opening_template?.trim()
+
   const openingStatementItem = useMemo<ChatItemInTree | null>(() => {
     if (!processedOpeningContent) return null
     return {
@@ -101,11 +103,13 @@ export const useChat = (
       content: processedOpeningContent,
       isAnswer: true,
       isOpeningStatement: true,
+      openingTemplate: showTemplate ? config?.opening_template : undefined,
+      openingTemplateOnly: showTemplate,
       suggestedQuestions: processedSuggestionsKey
         ? (JSON.parse(processedSuggestionsKey) as string[])
         : undefined,
     }
-  }, [processedOpeningContent, processedSuggestionsKey])
+  }, [processedOpeningContent, processedSuggestionsKey, config?.opening_template, showTemplate])
 
   const threadOpener = useMemo(
     () => threadMessages.find((item) => item.isOpeningStatement) ?? null,
@@ -117,6 +121,8 @@ export const useChat = (
     return {
       ...threadOpener,
       content: openingStatementItem.content,
+      openingTemplate: openingStatementItem.openingTemplate,
+      openingTemplateOnly: openingStatementItem.openingTemplateOnly,
       suggestedQuestions: openingStatementItem.suggestedQuestions,
     }
   }, [threadOpener, openingStatementItem])

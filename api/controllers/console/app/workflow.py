@@ -254,6 +254,8 @@ class WorkflowFeaturesConfigPayload(BaseModel):
     model_config = ConfigDict(extra="allow")
 
     opening_statement: str | None = None
+    opening_template: str | None = None
+    opening_template_enabled: bool | None = None
     suggested_questions: list[str] | None = None
     suggested_questions_after_answer: WorkflowSuggestedQuestionsAfterAnswerPayload | None = None
     text_to_speech: WorkflowTextToSpeechPayload | None = None

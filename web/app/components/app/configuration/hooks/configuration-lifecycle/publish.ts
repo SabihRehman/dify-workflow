@@ -72,6 +72,10 @@ export function buildPublishBody({
     dataset_query_variable: contextVar || '',
     more_like_this: features?.moreLikeThis as never,
     opening_statement: features?.opening?.enabled ? features.opening?.opening_statement || '' : '',
+    opening_template: features?.opening?.enabled ? features.opening?.opening_template || '' : '',
+    opening_template_enabled: features?.opening?.enabled
+      ? !!features.opening?.opening_template_enabled
+      : false,
     suggested_questions: features?.opening?.enabled
       ? features.opening?.suggested_questions || []
       : [],
@@ -213,6 +217,8 @@ export const createPublishHandler =
         body.completion_prompt_config,
       )
       draft.opening_statement = body.opening_statement
+      draft.opening_template = body.opening_template
+      draft.opening_template_enabled = body.opening_template_enabled
       draft.more_like_this = body.more_like_this
       draft.suggested_questions = body.suggested_questions ?? []
       draft.suggested_questions_after_answer = body.suggested_questions_after_answer

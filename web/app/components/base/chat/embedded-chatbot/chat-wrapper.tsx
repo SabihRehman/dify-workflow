@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next'
 import { trackWebAppEvent } from '@/app/components/base/amplitude/web-app-event'
 import AnswerIcon from '@/app/components/base/answer-icon'
 import AppIcon from '@/app/components/base/app-icon'
+import OpeningTemplate from '@/app/components/base/chat/chat/answer/opening-template'
 import SuggestedQuestions from '@/app/components/base/chat/chat/answer/suggested-questions'
 import InputsForm from '@/app/components/base/chat/embedded-chatbot/inputs-form'
 import LogoAvatar from '@/app/components/base/logo/logo-embedded-chat-avatar'
@@ -99,6 +100,8 @@ const ChatWrapper = () => {
       },
       supportFeedback: true,
       opening_statement: currentConversationItem?.introduction || (config as any).opening_statement,
+      opening_template: (config as any).opening_template,
+      opening_template_enabled: (config as any).opening_template_enabled,
     } as ChatConfig
   }, [appParams, currentConversationItem?.introduction])
   const timezone =
@@ -401,8 +404,9 @@ const ChatWrapper = () => {
               imageUrl={appData?.site.icon_url}
             />
             <div className="grow rounded-2xl bg-chat-bubble-bg px-4 py-3 body-lg-regular text-text-primary">
-              <Markdown content={welcomeMessage.content} />
+              {!welcomeMessage.openingTemplateOnly && <Markdown content={welcomeMessage.content} />}
               <SuggestedQuestions item={welcomeMessage} />
+              <OpeningTemplate html={welcomeMessage.openingTemplate} className="mt-3" />
             </div>
           </div>
         </div>
@@ -423,10 +427,13 @@ const ChatWrapper = () => {
           imageUrl={appData?.site.icon_url}
         />
         <div className="max-w-3xl px-4">
-          <Markdown
-            className="body-2xl-regular! text-text-tertiary!"
-            content={welcomeMessage.content}
-          />
+          {!welcomeMessage.openingTemplateOnly && (
+            <Markdown
+              className="body-2xl-regular! text-text-tertiary!"
+              content={welcomeMessage.content}
+            />
+          )}
+          <OpeningTemplate html={welcomeMessage.openingTemplate} className="mt-4" />
         </div>
       </div>
     )

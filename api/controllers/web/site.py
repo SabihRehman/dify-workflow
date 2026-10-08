@@ -42,6 +42,8 @@ class WebSiteResponse(ResponseModel):
 
 class WebModelConfigResponse(ResponseModel):
     opening_statement: str | None = None
+    opening_template: str | None = None
+    opening_template_enabled: bool | None = None
     suggested_questions: Any = Field(
         default=None,
         validation_alias=AliasChoices("suggested_questions_list", "suggested_questions"),

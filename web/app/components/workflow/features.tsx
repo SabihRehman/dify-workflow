@@ -48,6 +48,12 @@ const Features = () => {
         opening_statement: currentFeatures.opening?.enabled
           ? currentFeatures.opening?.opening_statement || ''
           : '',
+        opening_template: currentFeatures.opening?.enabled
+          ? currentFeatures.opening?.opening_template || ''
+          : '',
+        opening_template_enabled: currentFeatures.opening?.enabled
+          ? !!currentFeatures.opening?.opening_template_enabled
+          : false,
         suggested_questions: currentFeatures.opening?.enabled
           ? currentFeatures.opening?.suggested_questions || []
           : [],

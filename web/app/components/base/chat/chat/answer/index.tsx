@@ -20,6 +20,7 @@ import HumanInputFormList from './human-input-form-list'
 import More from './more'
 import Operation from './operation'
 import ReasoningPanel from './reasoning-panel'
+import OpeningTemplate from './opening-template'
 import SuggestedQuestions from './suggested-questions'
 import WorkflowProcessItem from './workflow-process'
 
@@ -295,6 +296,9 @@ const Answer: FC<AnswerProps> = ({
                 />
               )}
               <SuggestedQuestions item={item} />
+              {item.isOpeningStatement && (
+                <OpeningTemplate html={item.openingTemplate} className="mt-3" />
+              )}
               {!!citation?.length && !responding && (
                 <Citation data={citation} showHitInfo={config?.supportCitationHitInfo} />
               )}
@@ -383,6 +387,9 @@ const Answer: FC<AnswerProps> = ({
                 />
               )}
               <SuggestedQuestions item={item} />
+              {item.isOpeningStatement && (
+                <OpeningTemplate html={item.openingTemplate} className="mt-3" />
+              )}
               {!!citation?.length && !responding && (
                 <Citation data={citation} showHitInfo={config?.supportCitationHitInfo} />
               )}

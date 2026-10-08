@@ -599,6 +599,8 @@ class AgentFileUploadFeatureConfig(AgentFeatureToggleConfig):
 
 class AgentSoulAppFeaturesConfig(AgentFlexibleConfig):
     opening_statement: str | None = None
+    opening_template: str | None = None
+    opening_template_enabled: bool | None = None
     suggested_questions: list[str] | None = None
     suggested_questions_after_answer: AgentSuggestedQuestionsAfterAnswerFeatureConfig | None = None
     speech_to_text: AgentFeatureToggleConfig | None = None

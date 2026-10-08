@@ -17,7 +17,8 @@ class TestAdditionalFeatureManagers:
         assert config["opening_statement"] == ""
         assert config["opening_template"] == ""
         assert config["suggested_questions"] == []
-        assert set(keys) == {"opening_statement", "opening_template", "suggested_questions"}
+        assert config["opening_template_enabled"] is False
+        assert set(keys) == {"opening_statement", "opening_template", "opening_template_enabled", "suggested_questions"}
 
     def test_opening_statement_validate_types(self):
         with pytest.raises(ValueError):
@@ -39,11 +40,15 @@ class TestAdditionalFeatureManagers:
             OpeningStatementConfigManager.validate_and_set_defaults({"opening_template": 123})
         with pytest.raises(ValueError):
             OpeningStatementConfigManager.validate_and_set_defaults({"opening_template": "x" * 50_001})
+        with pytest.raises(ValueError):
+            OpeningStatementConfigManager.validate_and_set_defaults({"opening_template_enabled": "yes"})
 
     def test_opening_template_convert(self):
         assert OpeningStatementConfigManager.convert_template({"opening_template": "<b>hi</b>"}) == "<b>hi</b>"
         assert OpeningStatementConfigManager.convert_template({"opening_template": ""}) is None
         assert OpeningStatementConfigManager.convert_template({}) is None
+        assert OpeningStatementConfigManager.convert_template_enabled({"opening_template_enabled": True}) is True
+        assert OpeningStatementConfigManager.convert_template_enabled({}) is False
 
     def test_opening_statement_convert(self):
         opening, questions = OpeningStatementConfigManager.convert(

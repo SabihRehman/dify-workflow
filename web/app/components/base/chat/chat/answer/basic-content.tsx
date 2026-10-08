@@ -10,6 +10,9 @@ type BasicContentProps = {
 const BasicContent: FC<BasicContentProps> = ({ item }) => {
   const { annotation, content } = item
 
+  // The custom opener template replaces the opener text; it is rendered by <OpeningTemplate />.
+  if (item.isOpeningStatement && item.openingTemplateOnly) return null
+
   if (annotation?.logAnnotation) {
     return (
       <Markdown

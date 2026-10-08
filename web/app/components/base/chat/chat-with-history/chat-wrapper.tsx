@@ -82,6 +82,7 @@ const ChatWrapper = () => {
       supportFeedback: true,
       opening_statement: currentConversationItem?.introduction || (config as any).opening_statement,
       opening_template: (config as any).opening_template,
+      opening_template_enabled: (config as any).opening_template_enabled,
     } as ChatConfig
   }, [appParams, currentConversationItem?.introduction])
   const {
@@ -381,7 +382,7 @@ const ChatWrapper = () => {
             />
             <div className="w-0 grow">
               <div className="grow rounded-2xl bg-chat-bubble-bg px-4 py-3 body-lg-regular text-text-primary">
-                <Markdown content={welcomeMessage.content} />
+                {!welcomeMessage.openingTemplateOnly && <Markdown content={welcomeMessage.content} />}
                 <SuggestedQuestions item={welcomeMessage} />
               <OpeningTemplate html={welcomeMessage.openingTemplate} className="mt-3" />
               </div>
@@ -400,10 +401,12 @@ const ChatWrapper = () => {
           imageUrl={appData?.site.icon_url}
         />
         <div className="max-w-3xl px-4">
-          <Markdown
-            className="body-2xl-regular! text-text-tertiary!"
-            content={welcomeMessage.content}
-          />
+          {!welcomeMessage.openingTemplateOnly && (
+            <Markdown
+              className="body-2xl-regular! text-text-tertiary!"
+              content={welcomeMessage.content}
+            />
+          )}
           <OpeningTemplate html={welcomeMessage.openingTemplate} className="mt-4" />
         </div>
       </div>

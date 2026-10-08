@@ -10,6 +10,7 @@ type MoreLikeThis = EnabledOrDisabled
 export type OpeningStatement = EnabledOrDisabled & {
   opening_statement?: string
   opening_template?: string
+  opening_template_enabled?: boolean
   suggested_questions?: string[]
 }
 

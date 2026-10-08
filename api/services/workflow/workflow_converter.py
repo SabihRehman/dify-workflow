@@ -204,6 +204,7 @@ class WorkflowConverter:
                 features = {
                     "opening_statement": app_model_config_dict.get("opening_statement"),
                     "opening_template": app_model_config_dict.get("opening_template"),
+                    "opening_template_enabled": app_model_config_dict.get("opening_template_enabled"),
                     "suggested_questions": app_model_config_dict.get("suggested_questions"),
                     "suggested_questions_after_answer": app_model_config_dict.get("suggested_questions_after_answer"),
                     "speech_to_text": app_model_config_dict.get("speech_to_text"),

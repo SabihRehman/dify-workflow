@@ -1,4 +1,4 @@
-"""add opening_template to app_model_configs
+"""add opening_template and opening_template_enabled to app_model_configs
 
 Revision ID: a7c4e1d2b9f3
 Revises: f1a2b3c4d5e6
@@ -19,8 +19,10 @@ depends_on = None
 def upgrade():
     with op.batch_alter_table("app_model_configs", schema=None) as batch_op:
         batch_op.add_column(sa.Column("opening_template", models.types.LongText(), nullable=True))
+        batch_op.add_column(sa.Column("opening_template_enabled", sa.Boolean(), nullable=True))
 
 
 def downgrade():
     with op.batch_alter_table("app_model_configs", schema=None) as batch_op:
+        batch_op.drop_column("opening_template_enabled")
         batch_op.drop_column("opening_template")

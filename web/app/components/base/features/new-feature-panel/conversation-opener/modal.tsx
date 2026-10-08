@@ -44,6 +44,7 @@ const OpeningSettingModal = ({
     setTempValue(data.opening_statement || '')
   }, [data.opening_statement])
   const [tempTemplate, setTempTemplate] = useState(data?.opening_template || '')
+  const [tempTemplateEnabled, setTempTemplateEnabled] = useState(!!data?.opening_template_enabled)
   const [tempSuggestedQuestions, setTempSuggestedQuestions] = useState(
     data.suggested_questions || [],
   )
@@ -85,6 +86,7 @@ const OpeningSettingModal = ({
         if (draft) {
           draft.opening_statement = tempValue
           draft.opening_template = tempTemplate
+          draft.opening_template_enabled = tempTemplateEnabled && !!tempTemplate.trim()
           draft.suggested_questions = tempSuggestedQuestions
         }
       })
@@ -98,6 +100,7 @@ const OpeningSettingModal = ({
       showConfirmAddVar,
       tempSuggestedQuestions,
       tempTemplate,
+      tempTemplateEnabled,
       tempValue,
       isSaveDisabled,
     ],
@@ -308,6 +311,18 @@ const OpeningSettingModal = ({
               rows={8}
               className="w-full resize-y rounded-lg border-0 bg-components-input-bg-normal px-3 py-2 font-mono system-xs-regular text-text-secondary placeholder:text-text-quaternary focus:bg-components-input-bg-active focus:outline-hidden"
             />
+            <label className="mt-3 flex cursor-pointer items-center gap-2">
+              <input
+                type="checkbox"
+                data-testid="opener-template-enabled"
+                checked={tempTemplateEnabled}
+                disabled={!tempTemplate.trim()}
+                onChange={(e) => setTempTemplateEnabled(e.target.checked)}
+              />
+              <span className="system-sm-regular text-text-secondary">
+                {t(($) => $['openingStatement.templateEnabled'], { ns: 'appDebug' })}
+              </span>
+            </label>
             {!!tempTemplate.trim() && (
               <div data-testid="opener-template-preview" className="mt-3">
                 <div className="mb-1 system-xs-medium text-text-tertiary">

@@ -11,6 +11,13 @@ class OpeningStatementConfigManager:
         Get the custom HTML/CSS template rendered below the opening statement.
         """
         return config.get("opening_template") or None
+
+    @classmethod
+    def convert_template_enabled(cls, config: dict[str, Any]) -> bool:
+        """
+        Whether the custom template is shown instead of the opening statement.
+        """
+        return bool(config.get("opening_template_enabled"))
     @classmethod
     def convert(cls, config: dict[str, Any]) -> tuple[str, list[str]]:
         """
@@ -48,6 +55,12 @@ class OpeningStatementConfigManager:
         if len(config["opening_template"]) > OPENING_TEMPLATE_MAX_LENGTH:
             raise ValueError(f"opening_template must be at most {OPENING_TEMPLATE_MAX_LENGTH} characters")
 
+        if not config.get("opening_template_enabled"):
+            config["opening_template_enabled"] = False
+
+        if not isinstance(config["opening_template_enabled"], bool):
+            raise ValueError("opening_template_enabled must be of boolean type")
+
         # suggested_questions
         if not config.get("suggested_questions"):
             config["suggested_questions"] = []
@@ -59,4 +72,4 @@ class OpeningStatementConfigManager:
             if not isinstance(question, str):
                 raise ValueError("Elements in suggested_questions list must be of string type")
 
-        return config, ["opening_statement", "opening_template", "suggested_questions"]
+        return config, ["opening_statement", "opening_template", "opening_template_enabled", "suggested_questions"]

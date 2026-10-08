@@ -48,6 +48,7 @@ def _is_listable(app: App) -> bool:
 _EMPTY_PARAMETERS: dict[str, Any] = {
     "opening_statement": None,
     "opening_template": None,
+    "opening_template_enabled": False,
     "suggested_questions": [],
     "user_input_form": [],
     "file_upload": None,

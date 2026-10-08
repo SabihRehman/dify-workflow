@@ -200,6 +200,7 @@ class AppAdditionalFeatures(BaseModel):
     file_upload: FileUploadConfig | None = None
     opening_statement: str | None = None
     opening_template: str | None = None
+    opening_template_enabled: bool = False
     suggested_questions: list[str] = []
     suggested_questions_after_answer: bool = False
     show_retrieve_source: bool = False

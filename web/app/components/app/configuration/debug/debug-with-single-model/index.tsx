@@ -58,6 +58,9 @@ const DebugWithSingleModel = ({
       more_like_this: features.moreLikeThis,
       opening_statement: features.opening?.enabled ? features.opening?.opening_statement || '' : '',
       opening_template: features.opening?.enabled ? features.opening?.opening_template || '' : '',
+      opening_template_enabled: features.opening?.enabled
+        ? !!features.opening?.opening_template_enabled
+        : false,
       suggested_questions: features.opening?.enabled
         ? features.opening?.suggested_questions || []
         : [],

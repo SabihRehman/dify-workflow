@@ -69,6 +69,7 @@ class AgentRosterService:
     _APP_MODEL_CONFIG_COPY_FIELDS = (
         "opening_statement",
         "opening_template",
+        "opening_template_enabled",
         "suggested_questions",
         "suggested_questions_after_answer",
         "speech_to_text",

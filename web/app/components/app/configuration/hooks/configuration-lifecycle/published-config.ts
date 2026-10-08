@@ -78,6 +78,7 @@ function buildPublishedModelConfig({
     more_like_this: backendModelConfig.more_like_this ?? { enabled: false },
     opening_statement: backendModelConfig.opening_statement,
     opening_template: backendModelConfig.opening_template,
+    opening_template_enabled: backendModelConfig.opening_template_enabled,
     suggested_questions: backendModelConfig.suggested_questions ?? [],
     sensitive_word_avoidance: backendModelConfig.sensitive_word_avoidance,
     speech_to_text: backendModelConfig.speech_to_text,

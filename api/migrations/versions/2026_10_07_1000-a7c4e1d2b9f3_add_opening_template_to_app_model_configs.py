@@ -1,7 +1,7 @@
 """add opening_template and opening_template_enabled to app_model_configs
 
 Revision ID: a7c4e1d2b9f3
-Revises: f1a2b3c4d5e6
+Revises: a7b8c9d0e1f2
 Create Date: 2026-10-07 10:00:00.000000
 
 """
@@ -11,7 +11,7 @@ from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = "a7c4e1d2b9f3"
-down_revision = "f1a2b3c4d5e6"
+down_revision = "a7b8c9d0e1f2"
 branch_labels = None
 depends_on = None
 

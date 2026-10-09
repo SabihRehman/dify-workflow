@@ -193,10 +193,16 @@ export function EmbedGuide({ agents }: { agents: DiffyAgent[] }) {
             appear.
           </li>
           <li>
-            This iframe loads <Inline>{`${backend}/chat.html`}</Inline> directly, and the chat is
-            chosen from that address. In the <strong>Add agent</strong> form, save{' '}
-            <Inline>{`${backend}/chat.html`}</Inline> as the website address, together with the
-            Diffy iframe URL of the chat to show.
+            The same snippet works on every website: the chat is chosen from the website it is
+            embedded on. In the <strong>Add agent</strong> form, save that website&apos;s address
+            (for example <Inline>https://example.com</Inline>), together with the Diffy iframe URL
+            of the chat to show. Browsers usually tell the chat only the website, not the exact
+            page, so use one agent per website.
+          </li>
+          <li>
+            To choose the website yourself, for example if the site hides where its visitors
+            come from, add it to the iframe address:{' '}
+            <Inline>{`${backend}/chat.html?site=example.com`}</Inline>.
           </li>
           <li>
             Change <Inline>height</Inline> in the snippet to fit your page. Keep{' '}

@@ -38,21 +38,43 @@
       // this file on your own website.
       const BACKEND_URL = "https://tutor.learncs.eu/diffy-backend";
 
-      // This page asks the backend which Diffy agent belongs to
-      // window.location.href (matched against the hostname / URL you saved
-      // for the agent), then points the iframe at that agent's chat link.
-      // From then on the browser talks to Diffy directly, and no messages
-      // pass through the backend.
+      // This page asks the backend which Diffy agent belongs to the page it
+      // is shown on (matched against the hostname / URL you saved for the
+      // agent), then points the iframe at that agent's chat link. From then
+      // on the browser talks to Diffy directly, and no messages pass through
+      // the backend.
       const base =
         BACKEND_URL ||
         window.location.origin + window.location.pathname.replace(/\/[^/]*$/, "");
+
+      // The page the agent is chosen for, in order:
+      //   1. ?site=example.com (or a full URL) on this page's address, so one
+      //      shared copy of this file can be pointed at a site explicitly;
+      //   2. when embedded in another site's iframe, that site, from
+      //      document.referrer (browsers usually send only its origin, e.g.
+      //      https://example.com/, so save the agent as that origin);
+      //   3. otherwise this page's own address.
+      const resolvePageUrl = () => {
+        const site = new URLSearchParams(window.location.search).get("site");
+        if (site) return /^https?:\/\//i.test(site) ? site : `https://${site}`;
+
+        let framed;
+        try {
+          framed = window.self !== window.top;
+        } catch {
+          framed = true; // cross-origin parent
+        }
+        if (framed && document.referrer) return document.referrer;
+
+        return window.location.href;
+      };
 
       const init = async () => {
         try {
           const res = await fetch(`${base}/diffy-iframe/check`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ page_url: window.location.href }),
+            body: JSON.stringify({ page_url: resolvePageUrl() }),
           });
 
           if (!res.ok) throw new Error(`check failed: ${res.status}`);

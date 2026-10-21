@@ -12,6 +12,7 @@ from sqlalchemy.orm import Session, sessionmaker
 
 from configs import dify_config
 from extensions.ext_database import db
+from extensions.ext_storage import storage
 from libs.datetime_utils import naive_utc_now
 from models.model import (
     App,
@@ -23,6 +24,7 @@ from models.model import (
     MessageChain,
     MessageFeedback,
     MessageFile,
+    UploadFile,
 )
 from models.web import SavedMessage
 from services.retention.conversation.messages_clean_policy import (
@@ -163,6 +165,7 @@ class MessagesCleanStatsDict(TypedDict):
     total_messages: int
     filtered_messages: int
     total_deleted: int
+    total_files_deleted: int
 
 
 class MessagesCleanService:
@@ -346,6 +349,7 @@ class MessagesCleanService:
             "total_messages": 0,
             "filtered_messages": 0,
             "total_deleted": 0,
+            "total_files_deleted": 0,
         }
 
         # Cursor-based pagination using (created_at, id) to avoid infinite loops
@@ -478,6 +482,14 @@ class MessagesCleanService:
             # Step 4: Batch delete messages and their relations
             if not self._dry_run:
                 with sessionmaker(bind=db.engine, expire_on_commit=False).begin() as session:
+                    # Uploaded files that only these messages used. Found before the message_files
+                    # rows are deleted, since those rows are what link a message to its upload.
+                    files_to_delete = (
+                        self._find_deletable_upload_files(session, message_ids_to_delete)
+                        if dify_config.MESSAGES_CLEAN_DELETE_UPLOAD_FILES
+                        else []
+                    )
+
                     delete_relations_start = time.monotonic()
                     # Delete related records first
                     self._batch_delete_message_relations(session, message_ids_to_delete)
@@ -488,6 +500,10 @@ class MessagesCleanService:
                     delete_stmt = delete(Message).where(Message.id.in_(message_ids_to_delete))
                     delete_result = cast(CursorResult, session.execute(delete_stmt))
                     messages_deleted = delete_result.rowcount
+                    if files_to_delete:
+                        session.execute(
+                            delete(UploadFile).where(UploadFile.id.in_([file_id for file_id, _ in files_to_delete]))
+                        )
                     delete_messages_ms = int((time.monotonic() - delete_messages_start) * 1000)
                     commit_ms = 0
 
@@ -509,6 +525,10 @@ class MessagesCleanService:
                         int((time.monotonic() - batch_start) * 1000),
                     )
 
+                # The database rows are committed, so remove the stored files. A failure here only
+                # leaves an orphaned object in storage, which is logged with its key.
+                stats["total_files_deleted"] += self._delete_stored_files(files_to_delete)
+
                 # Random sleep between batches to avoid overwhelming the database
                 sleep_ms = random.uniform(0, max_batch_interval_ms)  # noqa: S311
                 logger.info("clean_messages (batch %s): sleeping for %.2fms", stats["batches"], sleep_ms)
@@ -527,6 +547,15 @@ class MessagesCleanService:
                 for msg_id in sampled_ids:
                     logger.info("clean_messages (batch %s, dry_run) sample: message_id=%s", stats["batches"], msg_id)
 
+                if dify_config.MESSAGES_CLEAN_DELETE_UPLOAD_FILES:
+                    with sessionmaker(bind=db.engine, expire_on_commit=False)() as session:
+                        dry_run_files = self._find_deletable_upload_files(session, message_ids_to_delete)
+                    logger.info(
+                        "clean_messages (batch %s, dry_run): would delete %s uploaded files",
+                        stats["batches"],
+                        len(dry_run_files),
+                    )
+
             self._metrics.record_batch(
                 scanned_messages=batch_scanned_messages,
                 filtered_messages=batch_filtered_messages,
@@ -535,14 +564,68 @@ class MessagesCleanService:
             )
 
         logger.info(
-            "clean_messages completed: total batches: %s, total messages: %s, filtered messages: %s, total deleted: %s",
+            "clean_messages completed: total batches: %s, total messages: %s, filtered messages: %s, "
+            "total deleted: %s, uploaded files deleted: %s",
             stats["batches"],
             stats["total_messages"],
             stats["filtered_messages"],
             stats["total_deleted"],
+            stats["total_files_deleted"],
         )
 
         return stats
+
+    @staticmethod
+    def _find_deletable_upload_files(session: Session, message_ids: Sequence[str]) -> list[tuple[str, str]]:
+        """
+        Find uploaded files that can be removed together with the given messages.
+
+        A file qualifies only when every message that references it is in ``message_ids``; a file
+        still used by a message that is kept is left alone.
+
+        Returns:
+            (upload_file_id, storage_key) pairs.
+        """
+        if not message_ids:
+            return []
+
+        used_by_batch = set(
+            session.scalars(
+                select(MessageFile.upload_file_id).where(
+                    MessageFile.message_id.in_(message_ids),
+                    MessageFile.upload_file_id.is_not(None),
+                )
+            )
+        )
+        if not used_by_batch:
+            return []
+
+        used_elsewhere = set(
+            session.scalars(
+                select(MessageFile.upload_file_id).where(
+                    MessageFile.upload_file_id.in_(used_by_batch),
+                    MessageFile.message_id.not_in(message_ids),
+                )
+            )
+        )
+        deletable_ids = used_by_batch - used_elsewhere
+        if not deletable_ids:
+            return []
+
+        rows = session.execute(select(UploadFile.id, UploadFile.key).where(UploadFile.id.in_(deletable_ids))).all()
+        return [(file_id, key) for file_id, key in rows]
+
+    @staticmethod
+    def _delete_stored_files(files: Sequence[tuple[str, str]]) -> int:
+        """Delete files from object storage, best effort. Returns how many were deleted."""
+        deleted = 0
+        for _, key in files:
+            try:
+                storage.delete(key)
+                deleted += 1
+            except Exception:
+                logger.exception("clean_messages: failed to delete stored file %s", key)
+        return deleted
 
     @staticmethod
     def _batch_delete_message_relations(session: Session, message_ids: Sequence[str]) -> None:

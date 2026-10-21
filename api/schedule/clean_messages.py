@@ -51,7 +51,8 @@ def clean_messages():
                 f"  - Batches processed: {stats['batches']}\n"
                 f"  - Total messages scanned: {stats['total_messages']}\n"
                 f"  - Messages filtered: {stats['filtered_messages']}\n"
-                f"  - Messages deleted: {stats['total_deleted']}",
+                f"  - Messages deleted: {stats['total_deleted']}\n"
+                f"  - Uploaded files deleted: {stats['total_files_deleted']}",
                 fg="green",
             )
         )

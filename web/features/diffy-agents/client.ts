@@ -1,3 +1,5 @@
+import { queryOptions } from '@tanstack/react-query'
+
 // Talks to the diffy-backend service (NOT Dify's own API) that resolves a
 // website hostname to its Diffy iframe embed URL. That service owns the data;
 // this page is only a UI for managing it from inside Dify.
@@ -11,12 +13,16 @@ export type DiffyAgent = {
   name: string
   hostname: string
   iframe_url: string
+  // Hours of inactivity after which the chat starts a new conversation. null/unset uses the
+  // Dify default, 0 turns the reset off.
+  session_reset_hours?: number | null
 }
 
 export type DiffyAgentInput = {
   name: string
   hostname: string
   iframe_url: string
+  session_reset_hours?: number | null
 }
 
 const DEFAULT_BACKEND_URL = '/diffy-backend'
@@ -98,10 +104,13 @@ export async function fetchDiffyAgents(token: string): Promise<DiffyAgent[]> {
   return data.agents ?? []
 }
 
-export async function createDiffyAgent(
-  token: string,
-  input: DiffyAgentInput,
-): Promise<DiffyAgent> {
+export const diffyAgentsQueryOptions = (token: string) =>
+  queryOptions({
+    queryKey: ['diffy-agents', token],
+    queryFn: () => fetchDiffyAgents(token),
+  })
+
+export async function createDiffyAgent(token: string, input: DiffyAgentInput): Promise<DiffyAgent> {
   const res = await apiFetch(
     '/admin/diffy-agents',
     token,

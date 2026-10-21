@@ -166,88 +166,11 @@ const Header: FC<IHeaderProps> = ({
     )
   }
 
-  // On mobile, the app name/icon/branding row is dropped entirely to save
-  // vertical space (the title is already visible in the browser tab/host
-  // page) - only a minimal action bar remains, so Reset Chat and View Form
-  // stay reachable.
-  const hasActions =
-    showToggleExpandButton ||
-    (!!currentConversationId && allowResetChat) ||
-    (!!currentConversationId && inputsForms.length > 0 && !allInputsHidden)
-
-  if (!hasActions) return null
-
-  return (
-    <div
-      className={cn('flex h-9 shrink-0 items-center justify-end rounded-t-2xl px-2')}
-      style={CssTransform(theme?.headerBorderBottomStyle ?? '')}
-    >
-      <div className="flex items-center gap-1">
-        {showToggleExpandButton && (
-          <Tooltip>
-            <TooltipTrigger
-              render={
-                <IconButton
-                  size="lg"
-                  aria-label={
-                    expanded
-                      ? t(($) => $['chat.collapse'], { ns: 'share' })
-                      : t(($) => $['chat.expand'], { ns: 'share' })
-                  }
-                  onClick={handleToggleExpand}
-                >
-                  {expanded ? (
-                    <div
-                      className={cn(
-                        'i-ri-collapse-diagonal-2-line h-4.5 w-4.5',
-                        theme?.colorPathOnHeader,
-                      )}
-                      aria-hidden="true"
-                    />
-                  ) : (
-                    <div
-                      className={cn(
-                        'i-ri-expand-diagonal-2-line h-4.5 w-4.5',
-                        theme?.colorPathOnHeader,
-                      )}
-                      aria-hidden="true"
-                    />
-                  )}
-                </IconButton>
-              }
-            />
-            <TooltipContent>
-              {expanded
-                ? t(($) => $['chat.collapse'], { ns: 'share' })
-                : t(($) => $['chat.expand'], { ns: 'share' })}
-            </TooltipContent>
-          </Tooltip>
-        )}
-        {currentConversationId && allowResetChat && (
-          <Tooltip>
-            <TooltipTrigger
-              render={
-                <IconButton
-                  size="lg"
-                  aria-label={t(($) => $['chat.resetChat'], { ns: 'share' })}
-                  onClick={onCreateNewChat}
-                >
-                  <div
-                    className={cn('i-ri-reset-left-line h-4.5 w-4.5', theme?.colorPathOnHeader)}
-                    aria-hidden="true"
-                  />
-                </IconButton>
-              }
-            />
-            <TooltipContent>{t(($) => $['chat.resetChat'], { ns: 'share' })}</TooltipContent>
-          </Tooltip>
-        )}
-        {currentConversationId && inputsForms.length > 0 && !allInputsHidden && (
-          <ViewFormDropdown iconColor={theme?.colorPathOnHeader} />
-        )}
-      </div>
-    </div>
-  )
+  // On mobile, the header is dropped entirely to maximize chat space (the
+  // app title is already visible in the browser tab/host page). This also
+  // means Reset Chat and View Form aren't reachable here on mobile - visitors
+  // can close and reopen the widget to start a fresh conversation instead.
+  return null
 }
 
 export default React.memo(Header)

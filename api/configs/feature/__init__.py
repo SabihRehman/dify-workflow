@@ -1670,6 +1670,13 @@ class SandboxExpiredRecordsCleanConfig(BaseSettings):
         description="Lock TTL for sandbox expired records clean task in seconds",
         default=90000,
     )
+    MESSAGES_CLEAN_DELETE_UPLOAD_FILES: bool = Field(
+        description=(
+            "Also delete the uploaded files (database record and stored file) of the messages the clean task "
+            "removes, when no kept message still uses them"
+        ),
+        default=True,
+    )
 
 
 class FeatureConfig(

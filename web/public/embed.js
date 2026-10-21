@@ -55,11 +55,11 @@
     right: var(--${buttonId}-right, 1rem); /* Align with dify-chatbot-bubble-button. */
     bottom: var(--${buttonId}-bottom, 1rem); /* Align with dify-chatbot-bubble-button. */
     left: unset;
-    min-width: 24rem;
-    width: 48%;
+    width: min(48%, calc(100vw - 2rem));
+    min-width: min(24rem, calc(100vw - 2rem));
     max-width: 40rem; /* Match mobile breakpoint*/
-    min-height: 43.75rem;
-    height: 88%;
+    height: min(88%, calc(100vh - 6rem));
+    min-height: min(43.75rem, calc(100vh - 6rem));
     max-height: calc(100vh - 6rem);
     border: none;
     border-radius: 1rem;

@@ -166,20 +166,22 @@ const Header: FC<IHeaderProps> = ({
     )
   }
 
+  // On mobile, the app name/icon/branding row is dropped entirely to save
+  // vertical space (the title is already visible in the browser tab/host
+  // page) - only a minimal action bar remains, so Reset Chat and View Form
+  // stay reachable.
+  const hasActions =
+    showToggleExpandButton ||
+    (!!currentConversationId && allowResetChat) ||
+    (!!currentConversationId && inputsForms.length > 0 && !allInputsHidden)
+
+  if (!hasActions) return null
+
   return (
     <div
-      className={cn('flex h-14 shrink-0 items-center justify-between rounded-t-2xl px-3')}
+      className={cn('flex h-9 shrink-0 items-center justify-end rounded-t-2xl px-2')}
       style={CssTransform(theme?.headerBorderBottomStyle ?? '')}
     >
-      <div className="flex grow items-center space-x-3">
-        {customerIcon}
-        <div
-          className="truncate system-md-semibold"
-          style={CssTransform(theme?.colorFontOnHeaderStyle ?? '')}
-        >
-          {title}
-        </div>
-      </div>
       <div className="flex items-center gap-1">
         {showToggleExpandButton && (
           <Tooltip>

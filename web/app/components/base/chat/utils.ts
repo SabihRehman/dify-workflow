@@ -1,6 +1,6 @@
 import type { IChatItem } from './chat/type'
 import type { ChatItem, ChatItemInTree } from './types'
-import { UUID_NIL } from './constants'
+import { SESSION_RESET_HOURS_PARAM, UUID_NIL } from './constants'
 
 async function decodeBase64AndDecompress(base64String: string) {
   try {
@@ -24,6 +24,7 @@ async function getRawInputsFromUrlParams(): Promise<Record<string, any>> {
     entriesArray.map(async ([key, value]) => {
       const prefixArray = ['sys.', 'user.']
       if (prefixArray.some((prefix) => key.startsWith(prefix))) return
+      if (key === SESSION_RESET_HOURS_PARAM) return
 
       inputs[key] = decodeURIComponent(value)
     }),
@@ -38,6 +39,7 @@ async function getProcessedInputsFromUrlParams(): Promise<Record<string, any>> {
   await Promise.all(
     entriesArray.map(async ([key, value]) => {
       const prefixArray = ['sys.', 'user.']
+      if (key === SESSION_RESET_HOURS_PARAM) return
       if (!prefixArray.some((prefix) => key.startsWith(prefix)))
         inputs[key] = await decodeBase64AndDecompress(decodeURIComponent(value))
     }),
@@ -257,6 +259,22 @@ function getThreadMessages(tree: ChatItemInTree[], targetMessageId?: string): Ch
   return ret
 }
 
+// Per-agent session reset window, passed as ?session_reset_hours=N on the chat page address.
+// Returns undefined when absent or invalid so the caller falls back to the env default.
+const MAX_SESSION_RESET_HOURS = 8760
+
+function getSessionResetHoursFromUrlParams(): number | undefined {
+  if (typeof window === 'undefined') return undefined
+
+  const raw = new URLSearchParams(window.location.search).get(SESSION_RESET_HOURS_PARAM)
+  if (raw === null || raw.trim() === '') return undefined
+
+  const hours = Number(raw)
+  if (!Number.isInteger(hours) || hours < 0 || hours > MAX_SESSION_RESET_HOURS) return undefined
+
+  return hours
+}
+
 export {
   buildChatItemTree,
   getLastAnswer,
@@ -265,6 +283,7 @@ export {
   getProcessedUserVariablesFromUrlParams,
   getRawInputsFromUrlParams,
   getRawUserVariablesFromUrlParams,
+  getSessionResetHoursFromUrlParams,
   getThreadMessages,
   isValidGeneratedAnswer,
 }

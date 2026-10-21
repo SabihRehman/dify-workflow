@@ -2,6 +2,15 @@
 
 import type { ReactNode } from 'react'
 import type { DiffyAgent } from './client'
+import {
+  AlertDialog,
+  AlertDialogActions,
+  AlertDialogCancelButton,
+  AlertDialogConfirmButton,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogTitle,
+} from '@langgenius/dify-ui/alert-dialog'
 import { Button } from '@langgenius/dify-ui/button'
 import { Field, FieldLabel } from '@langgenius/dify-ui/field'
 import { InputGroup, InputGroupInput } from '@langgenius/dify-ui/input-group'
@@ -14,6 +23,7 @@ import useDocumentTitle from '@/hooks/use-document-title'
 import {
   createDiffyAgent,
   deleteDiffyAgent,
+  diffyAgentsQueryOptions,
   fetchDiffyAgents,
   isUnauthorizedError,
   updateDiffyAgent,
@@ -117,19 +127,47 @@ function PasswordGate({ onUnlock }: { onUnlock: (token: string) => void }) {
   )
 }
 
+const MAX_RESET_HOURS = 8760
+const RESET_HOURS_ERROR = `New chat after must be a whole number of hours from 0 to ${MAX_RESET_HOURS}`
+
+// Empty means "use the default" (null); 0 turns the reset off.
+function parseResetHours(value: string): { valid: true; hours: number | null } | { valid: false } {
+  const trimmed = value.trim()
+  if (!trimmed) return { valid: true, hours: null }
+  if (!/^\d+$/.test(trimmed)) return { valid: false }
+
+  const hours = Number(trimmed)
+  return hours <= MAX_RESET_HOURS ? { valid: true, hours } : { valid: false }
+}
+
+function formatResetHours(hours: number | null | undefined) {
+  if (hours === null || hours === undefined) return 'Default'
+  return hours === 0 ? 'Never' : `${hours} h`
+}
+
 function AddAgentForm({ token, onAdded }: { token: string; onAdded: () => void }) {
   const [name, setName] = useState('')
   const [hostname, setHostname] = useState('')
   const [iframeUrl, setIframeUrl] = useState('')
+  const [resetHours, setResetHours] = useState('')
   const [error, setError] = useState('')
 
   const createMutation = useMutation({
-    mutationFn: () => createDiffyAgent(token, { name, hostname, iframe_url: iframeUrl }),
+    mutationFn: () => {
+      const parsed = parseResetHours(resetHours)
+      return createDiffyAgent(token, {
+        name,
+        hostname,
+        iframe_url: iframeUrl,
+        session_reset_hours: parsed.valid ? parsed.hours : null,
+      })
+    },
     onSuccess: () => {
       toast.success('Agent added')
       setName('')
       setHostname('')
       setIframeUrl('')
+      setResetHours('')
       setError('')
       onAdded()
     },
@@ -142,6 +180,10 @@ function AddAgentForm({ token, onAdded }: { token: string; onAdded: () => void }
     if (createMutation.isPending) return
     if (!name.trim() || !hostname.trim() || !iframeUrl.trim()) {
       setError('Name, hostname, and iframe URL are all required')
+      return
+    }
+    if (!parseResetHours(resetHours).valid) {
+      setError(RESET_HOURS_ERROR)
       return
     }
     setError('')
@@ -186,6 +228,24 @@ function AddAgentForm({ token, onAdded }: { token: string; onAdded: () => void }
           />
         </InputGroup>
       </Field>
+      <Field name="agent-session-reset-hours" className="max-w-80">
+        <FieldLabel className="system-xs-medium text-text-secondary">
+          New chat after (hours)
+        </FieldLabel>
+        <InputGroup>
+          <InputGroupInput
+            type="text"
+            inputMode="numeric"
+            placeholder="Default"
+            value={resetHours}
+            onValueChange={setResetHours}
+          />
+        </InputGroup>
+        <p className="system-xs-regular text-text-tertiary">
+          A visitor who has not sent a message for this long gets a new chat. Leave empty for the
+          default, 0 to never reset.
+        </p>
+      </Field>
       {error && <p className="system-xs-regular text-text-destructive">{error}</p>}
       <div>
         <Button
@@ -217,6 +277,12 @@ function EditAgentRow({
   const [name, setName] = useState(agent.name)
   const [hostname, setHostname] = useState(agent.hostname)
   const [iframeUrl, setIframeUrl] = useState(agent.iframe_url)
+  const [resetHours, setResetHours] = useState(
+    agent.session_reset_hours === null || agent.session_reset_hours === undefined
+      ? ''
+      : String(agent.session_reset_hours),
+  )
+  const parsedResetHours = parseResetHours(resetHours)
 
   const updateMutation = useMutation({
     mutationFn: () =>
@@ -224,6 +290,8 @@ function EditAgentRow({
         name: name.trim(),
         hostname: hostname.trim(),
         iframe_url: iframeUrl.trim(),
+        // null clears the value so the agent goes back to the default.
+        session_reset_hours: parsedResetHours.valid ? parsedResetHours.hours : null,
       }),
     onSuccess: () => {
       toast.success('Agent updated')
@@ -234,7 +302,7 @@ function EditAgentRow({
     },
   })
 
-  const canSave = !!name.trim() && !!hostname.trim() && !!iframeUrl.trim()
+  const canSave = !!name.trim() && !!hostname.trim() && !!iframeUrl.trim() && parsedResetHours.valid
 
   return (
     <tr className="border-b border-divider-regular last:border-b-0">
@@ -251,6 +319,17 @@ function EditAgentRow({
       <td className="px-4 py-2.5">
         <InputGroup>
           <InputGroupInput type="text" value={iframeUrl} onValueChange={setIframeUrl} />
+        </InputGroup>
+      </td>
+      <td className="px-4 py-2.5">
+        <InputGroup>
+          <InputGroupInput
+            type="text"
+            inputMode="numeric"
+            placeholder="Default"
+            value={resetHours}
+            onValueChange={setResetHours}
+          />
         </InputGroup>
       </td>
       <td className="px-4 py-2.5 text-right whitespace-nowrap">
@@ -290,6 +369,7 @@ function AgentsTable({
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
   const [editingId, setEditingId] = useState<string | null>(null)
+  const [deleteTarget, setDeleteTarget] = useState<DiffyAgent | null>(null)
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => deleteDiffyAgent(token, id),
@@ -346,6 +426,9 @@ function AgentsTable({
               <th className="px-4 py-2.5 system-xs-medium-uppercase text-text-tertiary">
                 Iframe URL
               </th>
+              <th className="px-4 py-2.5 system-xs-medium-uppercase text-text-tertiary">
+                New chat after
+              </th>
               <th className="px-4 py-2.5" />
             </tr>
           </thead>
@@ -353,7 +436,7 @@ function AgentsTable({
             {pageAgents.length === 0 && (
               <tr>
                 <td
-                  colSpan={4}
+                  colSpan={5}
                   className="px-4 py-6 text-center system-sm-regular text-text-tertiary"
                 >
                   No agents match "{search}".
@@ -383,18 +466,23 @@ function AgentsTable({
                   <td className="max-w-80 truncate px-4 py-2.5 system-sm-regular text-text-secondary">
                     {agent.iframe_url}
                   </td>
+                  <td className="px-4 py-2.5 system-sm-regular whitespace-nowrap text-text-secondary">
+                    {formatResetHours(agent.session_reset_hours)}
+                  </td>
                   <td className="px-4 py-2.5 text-right whitespace-nowrap">
                     <div className="flex justify-end gap-2">
-                      <Button size="small" variant="secondary" onClick={() => setEditingId(agent.id)}>
+                      <Button
+                        size="small"
+                        variant="secondary"
+                        onClick={() => setEditingId(agent.id)}
+                      >
                         Edit
                       </Button>
                       <Button
                         size="small"
                         variant="secondary"
                         loading={deleteMutation.isPending && deleteMutation.variables === agent.id}
-                        onClick={() => {
-                          if (confirm(`Delete ${agent.name}?`)) deleteMutation.mutate(agent.id)
-                        }}
+                        onClick={() => setDeleteTarget(agent)}
                       >
                         Delete
                       </Button>
@@ -434,6 +522,34 @@ function AgentsTable({
           </div>
         </div>
       )}
+      <AlertDialog
+        open={deleteTarget !== null}
+        onOpenChange={(open) => {
+          if (!open) setDeleteTarget(null)
+        }}
+      >
+        <AlertDialogContent>
+          <div className="flex flex-col gap-2 px-6 pt-6 pb-4">
+            <AlertDialogTitle className="w-full truncate title-2xl-semi-bold text-text-primary">
+              Delete agent?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="w-full system-md-regular wrap-break-word whitespace-pre-wrap text-text-tertiary">
+              {`"${deleteTarget?.name ?? ''}" will stop being shown on ${deleteTarget?.hostname ?? 'its site'}.`}
+            </AlertDialogDescription>
+          </div>
+          <AlertDialogActions>
+            <AlertDialogCancelButton>Cancel</AlertDialogCancelButton>
+            <AlertDialogConfirmButton
+              onClick={() => {
+                if (deleteTarget) deleteMutation.mutate(deleteTarget.id)
+                setDeleteTarget(null)
+              }}
+            >
+              Delete
+            </AlertDialogConfirmButton>
+          </AlertDialogActions>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
@@ -480,11 +596,7 @@ function DiffyAgentsManager({
 function DiffyAgentsAccess() {
   const queryClient = useQueryClient()
   const [token, setToken] = useState(readStoredToken)
-  const agentsQuery = useQuery({
-    queryKey: ['diffy-agents', token],
-    queryFn: () => fetchDiffyAgents(token),
-    retry: false,
-  })
+  const agentsQuery = useQuery({ ...diffyAgentsQueryOptions(token), retry: false })
 
   if (agentsQuery.isPending) {
     return (
@@ -513,7 +625,9 @@ function DiffyAgentsAccess() {
     <DiffyAgentsManager
       token={token}
       agents={agentsQuery.data}
-      onChanged={() => void queryClient.invalidateQueries({ queryKey: ['diffy-agents', token] })}
+      onChanged={() =>
+        void queryClient.invalidateQueries({ queryKey: diffyAgentsQueryOptions(token).queryKey })
+      }
     />
   )
 }

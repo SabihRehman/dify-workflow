@@ -7,6 +7,7 @@ import {
   CONVERSATION_ID_INFO,
   TAB_CONVERSATION_ID_INFO,
 } from './constants'
+import { getSessionResetHoursFromUrlParams } from './utils'
 
 type ConversationIdInfo = Record<string, Record<string, string>>
 
@@ -91,7 +92,10 @@ const useConversationSelection = ({
   const [conversationActivityInfo, setConversationActivityInfo] = useConversationActivityInfo()
   const storageScopeId = scopeId ?? ''
   const storageUserId = userId || 'DEFAULT'
-  const resetAfterMs = (Number(env.NEXT_PUBLIC_CHAT_SESSION_RESET_HOURS) || 0) * 60 * 60 * 1000
+  // The page address can carry a per-agent window (?session_reset_hours=N); otherwise the env default.
+  const resetHours =
+    getSessionResetHoursFromUrlParams() ?? (Number(env.NEXT_PUBLIC_CHAT_SESSION_RESET_HOURS) || 0)
+  const resetAfterMs = resetHours * 60 * 60 * 1000
   const hasTabConversationId =
     !!scopeId && hasConversationId(tabConversationIdInfo, storageScopeId, storageUserId)
   const lastConversationId = scopeId

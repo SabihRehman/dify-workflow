@@ -49,7 +49,7 @@ const Chatbot = () => {
           isMobile
             ? showMobileBrandFooter
               ? 'h-[calc(100vh-60px)] shadow-xs'
-              : 'h-full shadow-xs'
+              : 'h-screen shadow-xs'
             : 'h-screen bg-chatbot-bg',
         )}
         style={

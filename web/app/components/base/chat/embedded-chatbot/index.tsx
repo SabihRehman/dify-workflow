@@ -32,6 +32,10 @@ const Chatbot = () => {
   const { data: systemFeatures } = useSuspenseQuery(systemFeaturesQueryOptions())
 
   const site = appData?.site
+  // The mobile card used to reserve space for both the now-removed header
+  // and this footer bar (h-15, 60px) below it - only the footer height
+  // still needs reserving, and only when it actually renders.
+  const showMobileBrandFooter = isMobile && !appData?.custom_config?.remove_webapp_brand
 
   const difyIcon = <LogoHeader />
 
@@ -42,7 +46,11 @@ const Chatbot = () => {
       <div
         className={cn(
           'flex flex-col rounded-2xl',
-          isMobile ? 'h-[calc(100vh-60px)] shadow-xs' : 'h-screen bg-chatbot-bg',
+          isMobile
+            ? showMobileBrandFooter
+              ? 'h-[calc(100vh-60px)] shadow-xs'
+              : 'h-screen shadow-xs'
+            : 'h-screen bg-chatbot-bg',
         )}
         style={
           isMobile ? Object.assign({}, CssTransform(theme?.backgroundHeaderColorStyle ?? '')) : {}
@@ -59,7 +67,12 @@ const Chatbot = () => {
         <div
           className={cn(
             'flex grow flex-col overflow-y-auto',
-            isMobile && 'm-[0.5px] h-[calc(100vh-3rem)]! rounded-2xl bg-chatbot-bg',
+            // `grow` already fills the remaining space in this flex-col
+            // card now that the mobile header is always removed - no
+            // separate vh-based height is needed, and forcing one (as
+            // before) created a gap whenever the card itself wasn't also
+            // artificially shrunk by the same amount.
+            isMobile && 'm-[0.5px] rounded-2xl bg-chatbot-bg',
           )}
         >
           {appChatListDataLoading && <Loading type="app" />}
@@ -67,30 +80,28 @@ const Chatbot = () => {
         </div>
       </div>
       {/* powered by */}
-      {isMobile && (
+      {showMobileBrandFooter && (
         <div className="flex h-15 shrink-0 items-center pl-2">
-          {!appData?.custom_config?.remove_webapp_brand && (
-            <div className={cn('flex shrink-0 items-center gap-1.5 px-2')}>
-              <div className="system-2xs-medium-uppercase text-text-tertiary">
-                {t(($) => $['chat.poweredBy'], { ns: 'share' })}
-              </div>
-              {systemFeatures.branding.enabled && systemFeatures.branding.workspace_logo ? (
-                <img
-                  src={systemFeatures.branding.workspace_logo}
-                  alt="logo"
-                  className="block h-5 w-auto"
-                />
-              ) : appData?.custom_config?.replace_webapp_logo ? (
-                <img
-                  src={`${appData?.custom_config?.replace_webapp_logo}`}
-                  alt="logo"
-                  className="block h-5 w-auto"
-                />
-              ) : (
-                <DifyLogo alt="Dify" size="small" />
-              )}
+          <div className={cn('flex shrink-0 items-center gap-1.5 px-2')}>
+            <div className="system-2xs-medium-uppercase text-text-tertiary">
+              {t(($) => $['chat.poweredBy'], { ns: 'share' })}
             </div>
-          )}
+            {systemFeatures.branding.enabled && systemFeatures.branding.workspace_logo ? (
+              <img
+                src={systemFeatures.branding.workspace_logo}
+                alt="logo"
+                className="block h-5 w-auto"
+              />
+            ) : appData?.custom_config?.replace_webapp_logo ? (
+              <img
+                src={`${appData?.custom_config?.replace_webapp_logo}`}
+                alt="logo"
+                className="block h-5 w-auto"
+              />
+            ) : (
+              <DifyLogo alt="Dify" size="small" />
+            )}
+          </div>
         </div>
       )}
     </div>

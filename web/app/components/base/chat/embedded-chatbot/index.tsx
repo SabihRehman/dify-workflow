@@ -32,6 +32,10 @@ const Chatbot = () => {
   const { data: systemFeatures } = useSuspenseQuery(systemFeaturesQueryOptions())
 
   const site = appData?.site
+  // The mobile card used to reserve space for both the now-removed header
+  // and this footer bar (h-15, 60px) below it - only the footer height
+  // still needs reserving, and only when it actually renders.
+  const showMobileBrandFooter = isMobile && !appData?.custom_config?.remove_webapp_brand
 
   const difyIcon = <LogoHeader />
 
@@ -42,7 +46,11 @@ const Chatbot = () => {
       <div
         className={cn(
           'flex flex-col rounded-2xl',
-          isMobile ? 'h-[calc(100vh-60px)] shadow-xs' : 'h-screen bg-chatbot-bg',
+          isMobile
+            ? showMobileBrandFooter
+              ? 'h-[calc(100vh-60px)] shadow-xs'
+              : 'h-full shadow-xs'
+            : 'h-screen bg-chatbot-bg',
         )}
         style={
           isMobile ? Object.assign({}, CssTransform(theme?.backgroundHeaderColorStyle ?? '')) : {}
@@ -67,7 +75,7 @@ const Chatbot = () => {
         </div>
       </div>
       {/* powered by */}
-      {isMobile && !appData?.custom_config?.remove_webapp_brand && (
+      {showMobileBrandFooter && (
         <div className="flex h-15 shrink-0 items-center pl-2">
           <div className={cn('flex shrink-0 items-center gap-1.5 px-2')}>
             <div className="system-2xs-medium-uppercase text-text-tertiary">

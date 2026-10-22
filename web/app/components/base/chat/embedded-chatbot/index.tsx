@@ -67,7 +67,12 @@ const Chatbot = () => {
         <div
           className={cn(
             'flex grow flex-col overflow-y-auto',
-            isMobile && 'm-[0.5px] h-[calc(100vh-3rem)]! rounded-2xl bg-chatbot-bg',
+            // `grow` already fills the remaining space in this flex-col
+            // card now that the mobile header is always removed - no
+            // separate vh-based height is needed, and forcing one (as
+            // before) created a gap whenever the card itself wasn't also
+            // artificially shrunk by the same amount.
+            isMobile && 'm-[0.5px] rounded-2xl bg-chatbot-bg',
           )}
         >
           {appChatListDataLoading && <Loading type="app" />}

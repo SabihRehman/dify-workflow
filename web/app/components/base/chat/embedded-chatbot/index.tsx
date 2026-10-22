@@ -67,30 +67,28 @@ const Chatbot = () => {
         </div>
       </div>
       {/* powered by */}
-      {isMobile && (
+      {isMobile && !appData?.custom_config?.remove_webapp_brand && (
         <div className="flex h-15 shrink-0 items-center pl-2">
-          {!appData?.custom_config?.remove_webapp_brand && (
-            <div className={cn('flex shrink-0 items-center gap-1.5 px-2')}>
-              <div className="system-2xs-medium-uppercase text-text-tertiary">
-                {t(($) => $['chat.poweredBy'], { ns: 'share' })}
-              </div>
-              {systemFeatures.branding.enabled && systemFeatures.branding.workspace_logo ? (
-                <img
-                  src={systemFeatures.branding.workspace_logo}
-                  alt="logo"
-                  className="block h-5 w-auto"
-                />
-              ) : appData?.custom_config?.replace_webapp_logo ? (
-                <img
-                  src={`${appData?.custom_config?.replace_webapp_logo}`}
-                  alt="logo"
-                  className="block h-5 w-auto"
-                />
-              ) : (
-                <DifyLogo alt="Dify" size="small" />
-              )}
+          <div className={cn('flex shrink-0 items-center gap-1.5 px-2')}>
+            <div className="system-2xs-medium-uppercase text-text-tertiary">
+              {t(($) => $['chat.poweredBy'], { ns: 'share' })}
             </div>
-          )}
+            {systemFeatures.branding.enabled && systemFeatures.branding.workspace_logo ? (
+              <img
+                src={systemFeatures.branding.workspace_logo}
+                alt="logo"
+                className="block h-5 w-auto"
+              />
+            ) : appData?.custom_config?.replace_webapp_logo ? (
+              <img
+                src={`${appData?.custom_config?.replace_webapp_logo}`}
+                alt="logo"
+                className="block h-5 w-auto"
+              />
+            ) : (
+              <DifyLogo alt="Dify" size="small" />
+            )}
+          </div>
         </div>
       )}
     </div>

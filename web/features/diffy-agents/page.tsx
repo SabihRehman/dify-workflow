@@ -19,6 +19,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useAtomValue } from 'jotai'
 import { useMemo, useState } from 'react'
 import { isCurrentWorkspaceOwnerAtom } from '@/context/workspace-state'
+import { env } from '@/env'
 import useDocumentTitle from '@/hooks/use-document-title'
 import {
   createDiffyAgent,
@@ -140,9 +141,23 @@ function parseResetHours(value: string): { valid: true; hours: number | null } |
   return hours <= MAX_RESET_HOURS ? { valid: true, hours } : { valid: false }
 }
 
+// The value agents use when none is set: the web app's CHAT_SESSION_RESET_HOURS (0 = never).
+// The chat page reads the same setting, so this is the value a visitor actually gets.
+function getDefaultResetHours() {
+  return Number(env.NEXT_PUBLIC_CHAT_SESSION_RESET_HOURS) || 0
+}
+
 function formatResetHours(hours: number | null | undefined) {
-  if (hours === null || hours === undefined) return 'Default'
+  if (hours === null || hours === undefined) {
+    const defaultHours = getDefaultResetHours()
+    return defaultHours === 0 ? 'Never (default)' : `${defaultHours} h (default)`
+  }
   return hours === 0 ? 'Never' : `${hours} h`
+}
+
+function resetHoursPlaceholder() {
+  const defaultHours = getDefaultResetHours()
+  return defaultHours === 0 ? 'Default: never' : `Default: ${defaultHours}`
 }
 
 function AddAgentForm({ token, onAdded }: { token: string; onAdded: () => void }) {
@@ -236,14 +251,16 @@ function AddAgentForm({ token, onAdded }: { token: string; onAdded: () => void }
           <InputGroupInput
             type="text"
             inputMode="numeric"
-            placeholder="Default"
+            placeholder={resetHoursPlaceholder()}
             value={resetHours}
             onValueChange={setResetHours}
           />
         </InputGroup>
         <p className="system-xs-regular text-text-tertiary">
-          A visitor who has not sent a message for this long gets a new chat. Leave empty for the
-          default, 0 to never reset.
+          A visitor who has not sent a message for this long gets a new chat. Leave empty to use the
+          default (
+          {getDefaultResetHours() === 0 ? 'never reset' : `${getDefaultResetHours()} hours`}), or
+          enter 0 to never reset.
         </p>
       </Field>
       {error && <p className="system-xs-regular text-text-destructive">{error}</p>}
@@ -326,7 +343,7 @@ function EditAgentRow({
           <InputGroupInput
             type="text"
             inputMode="numeric"
-            placeholder="Default"
+            placeholder={resetHoursPlaceholder()}
             value={resetHours}
             onValueChange={setResetHours}
           />
